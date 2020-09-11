@@ -1,4 +1,3 @@
-# Johnston-2020-NewPhyt
 ## A bootstrap approach is a superior statistical method for the comparison of cell-to-cell movement data
 Plasmodesmata are an increasing focus of plant research, and plant physiologists frequently aim to understand the dynamics of intercellular movement and plasmodesmal function. For this, experiments that measure the spread of GFP between cells are commonly performed to indicate whether plasmodesmata are more open or closed in different conditions or in different genotypes. 
 
