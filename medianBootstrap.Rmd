@@ -1,7 +1,7 @@
 ---
 title: "Example use and extensions of medianBootstrap.R"
 author: "MG Johnston"
-date: "25/08/2020"
+date: "07/12/2020"
 output: html_document
 ---
 
@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(message = F) 
 knitr::opts_chunk$set(warning = F)
-setwd("E:/Letterv3/")
+setwd("D:/Letter Revision/")
 set.seed(1)
 ```
 
@@ -57,7 +57,7 @@ medianBootstrap<- function(data1, data2, N=5000, alpha=0.05){
 
 ## Load example data from Cheval et al. (2020)
 library(readxl)
-ChevalCount <- read_excel("Letter.xlsx",
+ChevalCount <- read_excel("RawData.xlsx",
                           sheet = 1, col_names = T)
 
 ## Extract the relevant data into two vectors and plot them
@@ -80,7 +80,9 @@ We can see here, that the two distributions are remarkably different. By using f
 medianBootstrap(Mock,Chitin, N=25000, alpha=0.05)
 ```
 
-Instead of using Wilson (1927) confidence intervals, a boostrap 95% confidence interval can be constructed: 
+## Alternative confidence intervals
+
+Instead of using Wilson (1927) confidence intervals, a bootstrap 95% confidence interval can be constructed: 
 
 ```{r diffCI}
 ## Generate bootstraped 95% confidence intervals
@@ -103,6 +105,8 @@ interval<-replicate(100,medianBootstrap_once(Mock,Chitin, N=5000, alpha=0.05))
 paste("p =", format(round(pvalue,5),nsmall=5), ", 95% CI = [", format(round(quantile(interval, c(0.025)),5),nsmall=5),",",format(round(quantile(interval, c(0.975)),5),nsmall=5),"]")
 
 ```
+
+Alternatively, Clopper-Pearson or Agresti–Coull could be used. The Hmisc package provides functions for this.
 
 ## Plotting the null distribution
 

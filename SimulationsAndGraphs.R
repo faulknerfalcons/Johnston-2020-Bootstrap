@@ -87,6 +87,11 @@ boot_mean<- function(data1, data2, N=10000){
   return(plot)
 }
 
+######################
+### In-text calculations
+######################
+
+
 N<-1000
 seed <- 9
 
@@ -105,6 +110,12 @@ beta<-sum(replicate(N, gen_boot_H0_beta(sd2=5,n=100)))
 mcp_ci(equal,N)*100
 mcp_ci(unequal,N)*100
 mcp_ci(beta,N)*100
+
+######################
+### Figure 1
+######################
+
+
 
 ###Cheval
 ChevalCount$treatment<-factor(ChevalCount$treatment, levels=c("Mock","Chitin"))
@@ -204,4 +215,254 @@ grid.arrange(FigureA,
              Figure7B,
              Figure9,
              layout_matrix = lay)
+# dev.off()
+
+######################
+### Figure 2
+######################
+
+gen_wilcox<-function(sd2=1, n1, n2){
+  X <- rnorm(n1, 0, 1)
+  Y <- rnorm(n2, 0, sd2)
+  return(wilcox.test(X,Y)$p.value<0.05)
+}
+gen_boot_H0<-function(sd2=1, n1,n2, N=1000){
+  X <- rnorm(n1, 0, 1)
+  Y <- rnorm(n2, 0, sd2)
+  mediandiff<-median(X)-median(Y)
+  boots<-replicate(N, median(sample(X,n1, replace=T))-median(sample(Y,n2, replace=T))-mediandiff)
+  above <- sum(abs(boots)>=abs(mediandiff))
+  return((above+1)/(N+1)<0.05)
+}
+gen_wilcox_H0_beta<-function(n1,n2, N=1000){
+  X <- rbeta(n1, 1, 3)
+  Y <- rnorm(n2, 1 - 1/2^(1/3), sqrt(.0375))
+  return(wilcox.test(X,Y)$p.value<0.05)
+}
+gen_boot_H0_beta<-function(n1,n2, N=1000){
+  X <- rbeta(n1, 1, 3)
+  Y <- rnorm(n2, 1 - 1/2^(1/3), sqrt(.0375))
+  mediandiff<-median(X)-median(Y)
+  boots<-replicate(N, median(sample(X,n1, replace=T))-median(sample(Y,n2, replace=T))-mediandiff)
+  above <- sum(abs(boots)>=abs(mediandiff))
+  return((above+1)/(N+1)<0.05)
+}
+
+
+N<-1000
+seed <- 9
+numbers<-c(2,2,3,4,5,10,20,30,40,50,100)
+
+### Commented out as it is very slow! Pre-calculated files available as .rds files.
+
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_wilcox(sd2=1,n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result1<-as.data.frame(result)
+# saveRDS(result1, file = "result1.rds")
+# ggplot(result1, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+# 
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_wilcox(sd2=5,n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result2<-as.data.frame(result)
+# saveRDS(result2, file = "result2.rds")
+# ggplot(result2, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+# 
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_wilcox_H0_beta(n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result3<-as.data.frame(result)
+# saveRDS(result3, file = "result3.rds")
+# ggplot(result3, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+# 
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_boot_H0(sd2=1,n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result4<-as.data.frame(result)
+# saveRDS(result4, file = "result4.rds")
+# ggplot(result4, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+# 
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_boot_H0(sd2=5,n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result5<-as.data.frame(result)
+# saveRDS(result5, file = "result5.rds")
+# ggplot(result5, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+# 
+# result<-NULL
+# for (i in numbers){
+#   for (j in numbers){
+#     set.seed(seed)
+#     equal<-sum(replicate(N, gen_boot_H0_beta(n1=i, n2=j)))
+#     result<-rbind(result,cbind(N,i,j,mcp_ci(equal,N)*100))
+#   }
+# }
+# result6<-as.data.frame(result)
+# saveRDS(result6, file = "result6.rds")
+# ggplot(result6, aes(x=i, y=mc_p, color=as.factor(j)))+
+#   geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+#   geom_line()+
+#   geom_point()+
+#   theme_bw()
+
+`%nin%` = Negate(`%in%`)
+
+
+result1<-readRDS(file = "result1.rds")
+result2<-readRDS(file = "result2.rds")
+result3<-readRDS(file = "result3.rds")
+result4<-readRDS(file = "result4.rds")
+result5<-readRDS(file = "result5.rds")
+result6<-readRDS(file = "result6.rds")
+
+
+f1<-ggplot(result1[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+f2<-ggplot(result2[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+f3<-ggplot(result3[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+f4<-ggplot(result4[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+f5<-ggplot(result5[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+f6<-ggplot(result6[result5$i %nin% c(1,2) & result5$j %in% c(3,5,10,30,100),], aes(x=i, y=mc_p, color=as.factor(j)))
+
+
+
+f1<-f1+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,15)+
+  geom_hline(yintercept = 5)
+
+f2<-f2+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,28)+
+  geom_hline(yintercept = 5)
+f3<-f3+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,20)+
+  geom_hline(yintercept = 5)
+f4<-f4+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,15)+
+  geom_hline(yintercept = 5)
+f5<-f5+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,28)+
+  geom_hline(yintercept = 5)
+
+f6<-f6+
+  geom_ribbon(alpha=0.2,aes(ymin=lower_ci, ymax=upper_ci,fill=as.factor(j)))+
+  geom_line()+
+  geom_point()+
+  theme_bw()+
+  ylim(0,20)+
+  geom_hline(yintercept = 5)
+
+gen_wilcox<-function(sd2=1, n=100){
+  X <- rnorm(n, 0, 1)
+  Y <- rnorm(n, 0, sd2)
+  return(cbind(X,Y))
+}
+gen_wilcox_H0_beta<-function(sd2=1, n=100, N=1000){
+  X <- rbeta(n, 1, 3)
+  Y <- rnorm(n, 1 - 1/2^(1/3), sqrt(.0375))
+  return(cbind(X,Y))
+}
+N<-1000
+seed <- 9
+
+set.seed(seed)
+beta<-gen_wilcox_H0_beta(sd2=5,n=100*N)
+beta2<-rbind(cbind.data.frame(X=beta[,1],Y="X"),cbind(X=beta[,2],Y="Y"))
+beta2$X<-as.numeric(beta2$X)
+beta2$Y<-as.factor(beta2$Y)
+vline_df <- data.frame(Y = levels(beta2$Y),
+                       Medians = tapply(X = beta2$X, INDEX = beta2$Y,
+                                        FUN = median))
+be<-ggplot(beta2,aes(x=X, fill=Y, color=Y))+geom_density(alpha=0.5)+geom_vline(data = vline_df, aes(xintercept = Medians), linetype = 2)
+
+set.seed(seed)
+beta<-gen_wilcox(n=100*N)
+beta2<-rbind(cbind.data.frame(X=beta[,1],Y="X"),cbind(X=beta[,2],Y="Y"))
+beta2$X<-as.numeric(beta2$X)
+beta2$Y<-as.factor(beta2$Y)
+vline_df <- data.frame(Y = levels(beta2$Y),
+                       Medians = tapply(X = beta2$X, INDEX = beta2$Y,
+                                        FUN = median))
+eq<-ggplot(beta2,aes(x=X, fill=Y, color=Y))+geom_density(alpha=0.5)+geom_vline(data = vline_df, aes(xintercept = Medians), linetype = 2)
+
+set.seed(seed)
+beta<-gen_wilcox(sd2=5,n=100*N)
+beta2<-rbind(cbind.data.frame(X=beta[,1],Y="X"),cbind(X=beta[,2],Y="Y"))
+beta2$X<-as.numeric(beta2$X)
+beta2$Y<-as.factor(beta2$Y)
+vline_df <- data.frame(Y = levels(beta2$Y),
+                       Medians = tapply(X = beta2$X, INDEX = beta2$Y,
+                                        FUN = median))
+uneq<-ggplot(beta2,aes(x=X, fill=Y, color=Y))+geom_density(alpha=0.5)+geom_vline(data = vline_df, aes(xintercept = Medians), linetype = 2)
+
+
+grid.arrange(eq,f1,f4,uneq,f2,f5,be,f3,f6)
+
+# 
+# svglite(file = "figure2.svg",width = 10,height = 8*0.95723408372,)
+# grid.arrange(eq,f1,f4,uneq,f2,f5,be,f3,f6)
 # dev.off()
