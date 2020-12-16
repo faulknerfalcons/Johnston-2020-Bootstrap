@@ -1,8 +1,9 @@
 ####
 #
-# M Johnston
-# 27/8/2020
+# MG Johnston
+# 16/12/2020
 # Faulkner Lab
+# Crop Genetics, John Innes Centre
 #
 ####
 
@@ -10,17 +11,24 @@
 #
 # medianBootstrap(data1, data2)
 ## Recommended method for comparing two sets of bombardment data
-## Returns p-value and confidence limits of the p-value for difference in median
+## Returns p-value and confidence limits (default 95%) of the p-value for difference in medians
 #
 # medianBootstrap_plot(data1, data2)
-## Returns null-distrubution graph for difference in median
+## Returns null-distrubution graph for difference in medians
 #
 # medianBootstraps(data1, data2, data3, ..., dataN)
 ## Recommended method to replace a one-way ANOVA of bombardment data
-## Returns a list of p-values of comparisons to data1 for difference in median
+## Returns a list of p-values of comparisons to data1 (usually the control) for difference in medians
 #
-# meanBootstrap
-## Returns p-value and confidence limits of the p-value for difference in mean
+# meanBootstrap(data1, data2)
+## Returns p-value and confidence limits (default 95%) of the p-value for difference in means
+#
+# meanBootstraps(data1, data2, data3, ..., dataN)
+## Returns a list of p-values of comparisons to data1 (usually the control) for difference in means
+#
+# All functions have optional parameters N and alpha
+## N is the number of bootstraps (default 5000)
+## alpha is the significance level (and the Type I error rate) used for constructing confidence intervals (default 0.05)
 #
 ####
 
@@ -104,4 +112,23 @@ meanBootstrap<- function(data1, data2, N=5000, alpha=0.05){
   ## Calculate p value and confidence intervals
   mcp<-mcp_ci(above+1,N+1, alpha)
   return(mcp)
+}
+
+meanBootstraps<- function(..., N=5000, alpha=0.05){
+  results<-NULL
+  x<-list(...)
+  reference<-x[[1]]
+  for(i in 2:(length(x))){
+    ## Calculate observed test statistic
+    mediandiff<-mean(reference)-mean(x[[i]])
+    ## Generate the null distribution
+    boots<-replicate(N, mean(sample(reference,length(reference), replace=T))-mean(sample(x[[i]],length(x[[i]]), replace=T))-mediandiff)
+    ## Count the number of at resampled observations which are at least as extreme
+    above <- sum(abs(boots)>=abs(mediandiff))
+    ## Calculate p value and confidence intervals
+    mcp<-mcp_ci(above+1,N+1, alpha)
+    results<-rbind(results, mcp)
+  }
+  ## Calculate observed test statistics
+  return(cbind(pvaladj=p.adjust(results[,1]),pvaladj_lower=p.adjust(results[,2]),pvaladj_upper=p.adjust(results[,3])))
 }
