@@ -2,9 +2,8 @@
 #### New Phytologist (2020) doi: [10.1111/nph.17159](https://doi/org/10.1111/nph.17159)
 
 #### Quick Use
-` source("https://raw.githubusercontent.com/faulknerfalcons/Johnston-2020-Bootstrap/master/medianBootstrapToolbox.R")
-
-medianBootstrap(data1, data2) `
+`source("https://raw.githubusercontent.com/faulknerfalcons/Johnston-2020-Bootstrap/master/medianBootstrapToolbox.R")`
+`medianBootstrap(data1, data2)`
 
 #### Abstract
 Phytologists rely on experimentally perturbing plants and monitoring the responses. Frequentist statistics are used to ascertain the probability that an observed difference between conditions was due to chance (a p value). When data are not normal and have differing variances, we propose data sets are better analysed by a bootstrap method that tests the null hypothesis that means (or medians) are the same between two conditions, instead of the commonly used  Mann-Whitney-Wilcoxon test. 
