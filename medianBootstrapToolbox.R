@@ -1,9 +1,16 @@
 ####
 #
 # MG Johnston
-# 16/12/2020
+# 05/01/2021
 # Faulkner Lab
 # Crop Genetics, John Innes Centre
+#
+####
+
+####
+#
+# Quick load into R
+## source("https://raw.githubusercontent.com/faulknerfalcons/Johnston-2020-Bootstrap/master/medianBootstrapToolbox.R")
 #
 ####
 
@@ -13,8 +20,9 @@
 ## Recommended method for comparing two sets of bombardment data
 ## Returns p-value and confidence limits (default 95%) of the p-value for difference in medians
 #
-# medianBootstrap_plot(data1, data2)
+# medianBootstrapPlot(data1, data2)
 ## Returns null-distrubution graph for difference in medians
+## Optional binwidth for histogram (default 1)
 #
 # medianBootstraps(data1, data2, data3, ..., dataN)
 ## Recommended method to replace a one-way ANOVA of bombardment data
@@ -25,6 +33,10 @@
 #
 # meanBootstraps(data1, data2, data3, ..., dataN)
 ## Returns a list of p-values of comparisons to data1 (usually the control) for difference in means
+#
+# meanBootstrapPlot(data1, data2)
+## Returns null-distrubution graph for difference in means
+## Optional binwidth for histogram (default 0.1)
 #
 # All functions have optional parameters N and alpha
 ## N is the number of bootstraps (default 5000)
@@ -60,7 +72,7 @@ medianBootstrap<- function(data1, data2, N=5000, alpha=0.05){
   return(mcp)
 }
 
-medianBootstrapPlot<- function(data1, data2, N=5000, alpha=0.05){
+medianBootstrapPlot<- function(data1, data2, N=5000, alpha=0.05, binwidth=1){
   require(ggplot2)
   ## Calculate observed test statistic
   mediandiff<-median(data1)-median(data2)
@@ -73,7 +85,7 @@ medianBootstrapPlot<- function(data1, data2, N=5000, alpha=0.05){
   ## Plot graph
   labeltext1<- substitute(atop(paste(hat(italic("p")))~phantom()==phantom()~AAA,"95% CI"~BBB~CCC), list(AAA=mcp[1], BBB =paste0("[",mcp[2],", "), CCC= paste0(mcp[3],"]")))
   plot<-ggplot(data.frame(median=boots), aes(x=abs(median)))+
-    geom_histogram(alpha=.7, binwidth = 1, aes(y=..density..))+
+    geom_histogram(alpha=.7, binwidth = binwidth, aes(y=..density..))+
     geom_vline(xintercept = abs(mediandiff), linetype=2, colour = "red4")+
     theme_bw()+
     xlab(expression(atop("|"~hat(paste(theta, "*"))~-~hat(theta)~"|",theta==Delta[median])))+
@@ -131,4 +143,27 @@ meanBootstraps<- function(..., N=5000, alpha=0.05){
   }
   ## Calculate observed test statistics
   return(cbind(pvaladj=p.adjust(results[,1]),pvaladj_lower=p.adjust(results[,2]),pvaladj_upper=p.adjust(results[,3])))
+}
+
+meanBootstrapPlot<- function(data1, data2, N=5000, alpha=0.05, binwidth=0.1){
+  require(ggplot2)
+  ## Calculate observed test statistic
+  mediandiff<-mean(data1)-mean(data2)
+  ## Generate the null distribution
+  boots<-replicate(N, mean(sample(data1,length(data1), replace=T))-mean(sample(data2,length(data2),  replace=T))-mediandiff)
+  ## Count the number of at resampled observations which are at least as extreme
+  above <- sum(abs(boots)>=abs(mediandiff))
+  ## Calculate p value and confidence intervals
+  mcp<-format(round(mcp_ci(above+1,N+1, alpha),3),nsmall=3)
+  ## Plot graph
+  labeltext1<- substitute(atop(paste(hat(italic("p")))~phantom()==phantom()~AAA,"95% CI"~BBB~CCC), list(AAA=mcp[1], BBB =paste0("[",mcp[2],", "), CCC= paste0(mcp[3],"]")))
+  plot<-ggplot(data.frame(mean=boots), aes(x=abs(mean)))+
+    geom_histogram(alpha=.7, binwidth = binwidth, aes(y=..density..))+
+    geom_vline(xintercept = abs(mediandiff), linetype=2, colour = "red4")+
+    theme_bw()+
+    xlab(expression(atop("|"~hat(paste(theta, "*"))~-~hat(theta)~"|",theta==Delta[mean])))+
+    ylab("Density")+
+    annotate("text",x = Inf, y = Inf, hjust = 1.1, vjust = 1.1,label=labeltext1)+
+    theme(text=element_text(size=15))
+  return(plot)
 }
