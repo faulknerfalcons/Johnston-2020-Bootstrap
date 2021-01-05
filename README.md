@@ -3,6 +3,7 @@
 
 #### Quick Use
 ` source("https://raw.githubusercontent.com/faulknerfalcons/Johnston-2020-Bootstrap/master/medianBootstrapToolbox.R")
+
 medianBootstrap(data1, data2) `
 
 #### Abstract
